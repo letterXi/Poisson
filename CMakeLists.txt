@@ -61,5 +61,8 @@ add_subdirectory(tests)
 add_executable(
     app
     app/main.cpp
+    create_problem/poisson.cpp
 )
+
+target_include_directories(app PRIVATE create_problem/)
 target_link_libraries(app amgsollib) 
