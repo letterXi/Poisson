@@ -57,12 +57,5 @@ include_directories(${Boost_INCLUDE_DIRS})
 
 add_subdirectory(libs)
 add_subdirectory(tests)
+add_subdirectory(app)
 
-add_executable(
-    app
-    app/main.cpp
-    create_problem/poisson.cpp
-)
-
-target_include_directories(app PRIVATE create_problem/)
-target_link_libraries(app amgsollib) 

@@ -19,7 +19,7 @@ double sourceFunction(double x, double y) {
 }
 
 void Poisson(int n, std::vector<size_t>& addr, std::vector<size_t>& cols, std::vector<double>& vals,
-             std::vector<double>& rhs) {
+             std::vector<double>& rhs, size_t thd) {
     size_t n2 = n * n;
     size_t inner_n = (n - 2)*(n - 2);
     size_t bound_n = n2 - inner_n;
@@ -51,7 +51,7 @@ void Poisson(int n, std::vector<size_t>& addr, std::vector<size_t>& cols, std::v
     rhs.resize(n2);
 
     double h = 1.0 / (double)(n - 1);
-    size_t n_threads = 4;
+    size_t n_threads = thd;
     size_t pivot = n / n_threads;
     std::vector<std::thread> threads;
     for(size_t i = 0; i < n_threads; i++)

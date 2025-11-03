@@ -42,21 +42,15 @@ int main() {
     std::vector<size_t> cols;
     std::vector<double> vals;
     std::vector<double> rhs;
-    int n = 1000;
+    int n = 100;
 
-    auto start = std::chrono::high_resolution_clock::now();
     Poisson(n, addr, cols, vals, rhs);
-    auto end = std::chrono::high_resolution_clock::now();
-    std::cout << "Matrix full " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
     std::vector<double> u;
 
     CsrMatrix mat(std::move(addr), std::move(cols), std::move(vals));
     AmgclSolver solver({{"solver.type", "bicgstab"}});
     solver.set_matrix(mat);
-    start = std::chrono::high_resolution_clock::now();
     solver.solve(rhs, u);
-    end = std::chrono::high_resolution_clock::now();
-    std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
     saveVtkFile("numsolve.vtk", u, n);
 
     n = 300;
