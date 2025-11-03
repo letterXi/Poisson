@@ -31,6 +31,10 @@ find_package(
     Boost
     REQUIRED
 )
+find_package(
+    Catch2
+    REQUIRED
+)
 
 FetchContent_Declare(
     amgcl
@@ -43,17 +47,19 @@ if(NOT
 )
     FetchContent_Populate(amgcl)
 endif()
+
 include_directories(
     SYSTEM
     ${amgcl_SOURCE_DIR}
 )
 
 include_directories(${Boost_INCLUDE_DIRS})
-include_directories(headers)
+
+add_subdirectory(libs)
+add_subdirectory(tests)
 
 add_executable(
     app
     app/main.cpp
-    src/CsrMatrix.cpp
-    src/AmgclSolver.cpp
 )
+target_link_libraries(app amgsollib) 

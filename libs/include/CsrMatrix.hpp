@@ -18,6 +18,8 @@ public:
 
     const std::vector<double>& vals() const;
 
+    double find_value(size_t i, size_t j) const;
+
     void set_values(std::vector<double>&& vals);
 
     size_t n_nonzeros() const;

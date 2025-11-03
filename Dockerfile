@@ -7,7 +7,9 @@ RUN apt-get update  && \
     apt-get install -y libboost-dev && \
     apt-get install -y git && \
     apt-get install -y cmake-format clang-format && \
-    apt-get install -y sudo rsync
+    apt-get install -y sudo rsync && \
+    apt-get install -y catch2 && \
+    apt-get install -y tree
 
 RUN mkdir /app
 
