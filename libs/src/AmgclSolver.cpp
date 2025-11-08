@@ -44,9 +44,9 @@ AmgclSolver::AmgclSolver(std::initializer_list<std::pair<std::string, std::strin
     }
 }
 
-AmgclSolver::AmgclSolver(size_t maxit, double tolerance) : maxit_(maxit), tolerance_(tolerance) {}
-
 AmgclSolver::~AmgclSolver() = default;
+
+AmgclSolver::AmgclSolver(size_t maxit, double tolerance) : maxit_(maxit), tolerance_(tolerance) {}
 
 void AmgclSolver::set_matrix(const CsrMatrix& mat) {
     Impl::matrix_t amgcl_matrix;

@@ -29,18 +29,15 @@ size_t CsrMatrix::n_rows() const {
     return addr_.size() - 1;
 }
 
-double CsrMatrix::find_value(size_t i, size_t j) const
-{
-	std::vector<size_t>::const_iterator  it_begin = cols_.begin() + addr_[i];
-	std::vector<size_t>::const_iterator it_end = cols_.begin() + addr_[i+1];
+double CsrMatrix::find_value(size_t i, size_t j) const {
+    std::vector<size_t>::const_iterator it_begin = cols_.begin() + addr_[i];
+    std::vector<size_t>::const_iterator it_end = cols_.begin() + addr_[i + 1];
 
-	std::vector<size_t>::const_iterator fnd = std::lower_bound(it_begin, it_end, j);
-	if (fnd != it_end && *fnd == j)
-	{
-		size_t a = fnd - cols_.begin();
-		return vals_[a];
-	}
-	else {
-		return 0;
-	}
+    std::vector<size_t>::const_iterator fnd = std::lower_bound(it_begin, it_end, j);
+    if (fnd != it_end && *fnd == j) {
+        size_t a = fnd - cols_.begin();
+        return vals_[a];
+    } else {
+        return 0;
+    }
 }

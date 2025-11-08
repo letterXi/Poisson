@@ -1,13 +1,13 @@
-add_executable(threadbenchmark
-	thread_benchmark.cpp
-	${CMAKE_SOURCE_DIR}/create_problem/poisson.cpp
-)
-add_executable(
+add_executable(threadbenchmark thread_benchmark.cpp)
+add_executable(app main.cpp)
+
+target_link_libraries(
     app
-    main.cpp
-    ${CMAKE_SOURCE_DIR}/create_problem/poisson.cpp
+    amgsollib
+    poissonlib
 )
 
-target_include_directories(app PRIVATE ${CMAKE_SOURCE_DIR}/create_problem/)
-target_include_directories(threadbenchmark PRIVATE ${CMAKE_SOURCE_DIR}/create_problem/)
-target_link_libraries(app amgsollib) 
+target_link_libraries(
+    threadbenchmark
+    poissonlib
+)
