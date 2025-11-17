@@ -1,6 +1,6 @@
 #include "AmgclSolver.hpp"
 #include "CsrMatrix.hpp"
-#include "poisson.hpp"
+#include "Poisson.hpp"
 #include <chrono>
 #include <fstream>
 #include <iostream>

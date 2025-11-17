@@ -1,4 +1,4 @@
-#include "poisson.hpp"
+#include "Poisson.hpp"
 #include <chrono>
 #include <fstream>
 #include <iostream>
