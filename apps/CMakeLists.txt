@@ -3,11 +3,10 @@ add_executable(app main.cpp)
 
 target_link_libraries(
     app
-    amgsollib
-    poissonlib
+    PoissonProblemLib
 )
 
 target_link_libraries(
     threadbenchmark
-    poissonlib
+    PoissonProblemLib
 )

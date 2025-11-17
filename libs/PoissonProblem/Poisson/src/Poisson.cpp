@@ -1,4 +1,4 @@
-#include "poisson.hpp"
+#include "Poisson.hpp"
 #include <algorithm>
 #include <cmath>
 #include <execution>

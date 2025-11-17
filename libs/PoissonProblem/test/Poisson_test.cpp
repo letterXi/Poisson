@@ -1,7 +1,7 @@
 #define CATCH_CONFIG_MAIN
 #include "AmgclSolver.hpp"
 #include "CsrMatrix.hpp"
-#include "poisson.hpp"
+#include "Poisson.hpp"
 #include <catch2/catch_all.hpp>
 #include <vector>
 using Catch::Approx;

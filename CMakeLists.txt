@@ -56,6 +56,5 @@ include_directories(
 include_directories(${Boost_INCLUDE_DIRS})
 
 add_subdirectory(libs)
-add_subdirectory(tests)
-add_subdirectory(app)
+add_subdirectory(apps)
 
