@@ -2,6 +2,7 @@
 #include "CsrMatrix.hpp"
 #include "Poisson.hpp"
 #include "shwartz.hpp"
+#include <iostream>
 
 localSolve::localSolve(size_t id, const Mesh& mesh, size_t intersection)
     : id_(id), mesh_(mesh), intersection_(intersection), u_(mesh_.points(), 0.1), boundary_(mesh_.get_N_y(), 0.1) {}
@@ -28,9 +29,11 @@ void localSolve::solve() {
     Poisson(
         mesh_, sourceFunction,
         [this](double x, double y) {
-            if ((x - mesh_.getX(intersection_)) < 1e-6) {
+            if ((x - mesh_.getX(intersection_)) < 1e-10) {
                 size_t j = static_cast<size_t>((y - mesh_.getY(0)) / static_cast<double>(mesh_.get_h()));
-                    return this->boundary_[mesh_.getK(intersection_, j)];
+                if (j > 0 && j < mesh_.get_N_y() - 1) {
+                    return this->boundary_[j];
+                }
             }
 
             return dirichletBoundaryFunction(x, y);
