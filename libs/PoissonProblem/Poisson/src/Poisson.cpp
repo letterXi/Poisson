@@ -2,7 +2,6 @@
 #include <algorithm>
 #include <cmath>
 #include <execution>
-#include <functional>
 #include <iostream>
 #include <ranges>
 #include <thread>
@@ -21,6 +20,68 @@ double sourceFunction(double x, double y) {
                    (x * x + y * y) * std::exp(-x * y));
 }
 
+void Poisson(const Mesh& mesh, std::function<double(double, double)> source_function,
+             std::function<double(double, double)> boundary_function, std::vector<size_t>& addr,
+             std::vector<size_t>& cols, std::vector<double>& vals, std::vector<double>& rhs) {
+    size_t n2 = mesh.points();
+    size_t inner_n = (mesh.get_N_x() - 2) * (mesh.get_N_y() - 2);
+    size_t bound_n = n2 - inner_n;
+
+    addr.clear();
+    addr.reserve(n2 + 1);
+    addr.push_back(0);
+    size_t temp = 0;
+    for (size_t j = 0; j < mesh.get_N_y(); j++) {
+        for (size_t i = 0; i < mesh.get_N_x(); i++) {
+            if (mesh.is_boundary(i, j))
+                temp++;
+            else
+                temp += 5;
+
+            addr.push_back(temp);
+        }
+    }
+
+    cols.clear();
+    cols.resize(bound_n + inner_n * 5);
+
+    vals.clear();
+    vals.resize(bound_n + inner_n * 5);
+
+    rhs.resize(n2);
+
+    double h = mesh.get_h();
+    size_t n = mesh.get_N_x();
+    for (size_t j = 0; j < mesh.get_N_y(); j++) {
+        for (size_t i = 0; i < mesh.get_N_x(); ++i) {
+            size_t k = mesh.getK(i, j);
+            size_t ind = addr[k];
+            if (mesh.is_boundary(i, j)) {
+                cols[ind] = (k);
+                vals[ind++] = (1);
+                rhs[k] = boundary_function(mesh.getX(i), mesh.getY(j));
+            } else {
+                cols[ind] = (k - n);
+                vals[ind++] = (-1.0 / (h * h));
+
+                cols[ind] = (k - 1);
+                vals[ind++] = (-1.0 / (h * h));
+
+                cols[ind] = (k);
+                vals[ind++] = (4.0 / (h * h));
+
+                cols[ind] = (k + 1);
+                vals[ind++] = (-1.0 / (h * h));
+
+                cols[ind] = (k + n);
+                vals[ind++] = (-1.0 / (h * h));
+
+                rhs[k] = source_function(mesh.getX(i), mesh.getY(j));
+            }
+        }
+    }
+}
+/*
 void Poisson(int n, std::vector<size_t>& addr, std::vector<size_t>& cols, std::vector<double>& vals,
              std::vector<double>& rhs, size_t thd) {
     size_t n2 = n * n;
@@ -106,4 +167,4 @@ void full_mat_vectors(int n, double h, std::vector<size_t>& addr, std::vector<si
             rhs[k] = sourceFunction(i * h, j * h);
         }
     }
-}
+}*/
