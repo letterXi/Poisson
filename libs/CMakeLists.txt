@@ -1,1 +1,1 @@
-add_subdirectory(PoissonProblem)
+add_subdirectory(poisson_problem)

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.28.3)
 
-project(template)
+project(poisson_problem_solve)
 
 set(CMAKE_CXX_STANDARD 20)
 
@@ -54,6 +54,7 @@ include_directories(
 )
 
 include_directories(${Boost_INCLUDE_DIRS})
+include_directories(${CMAKE_SOURCE_DIR}/libs)
 
 add_subdirectory(libs)
 add_subdirectory(apps)

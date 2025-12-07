@@ -1,0 +1,32 @@
+set(SRC
+    ddm/global_solve.cpp
+    ddm/local_solve.cpp
+    ddm/jacobi_solve.cpp
+    ddm/seidel_solve.cpp
+    grid/grid.cpp
+    mat/csr_matrix.cpp
+    mat_solver/csr_mat_solver.cpp
+    slae_build/poisson_slae_build.cpp
+    vtk/vtk_save.cpp
+    norms/norms.cpp
+)
+
+set(HEADERS
+    ddm/global_solve.hpp
+    ddm/local_solve.hpp
+    ddm/jacobi_solve.hpp
+    ddm/seidel_solve.hpp
+    grid/grid.hpp
+    mat/csr_matrix.hpp
+    mat_solver/csr_mat_solver.hpp
+    slae_build/poisson_slae_build.hpp
+    norms/norms.hpp
+    vtk/vtk_save.hpp
+)
+
+add_library(
+    poisson_problem_lib
+    STATIC
+    ${SRC}
+    ${HEADERS}
+)
