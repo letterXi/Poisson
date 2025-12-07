@@ -10,7 +10,8 @@ RUN apt-get update  && \
     apt-get install -y sudo rsync && \
     apt-get install -y catch2 && \
     apt-get install -y tree && \
-    apt-get install -y vim
+    apt-get install -y vim && \
+    apt-get install -y python
 
 RUN mkdir /app
 

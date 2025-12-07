@@ -9,6 +9,7 @@ set(SRC
     slae_build/poisson_slae_build.cpp
     vtk/vtk_save.cpp
     norms/norms.cpp
+    vector_operations/vector_operations.cpp
 )
 
 set(HEADERS
@@ -22,6 +23,7 @@ set(HEADERS
     slae_build/poisson_slae_build.hpp
     norms/norms.hpp
     vtk/vtk_save.hpp
+    vector_operations/vector_operations.hpp
 )
 
 add_library(

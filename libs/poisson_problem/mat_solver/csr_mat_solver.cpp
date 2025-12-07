@@ -60,7 +60,7 @@ void AmgclSolver::set_matrix(const CsrMatrix& mat) {
     amgcl_matrix.val = const_cast<double*>(refmat.data());
 
     Impl::param_t prm;
-    prm.put("solver.type", "fgmres");
+    prm.put("solver.type", "gmres");
     prm.put("solver.tol", tolerance_);
     prm.put("solver.maxiter", maxit_);
     prm.put("precond.coarsening.type", "smoothed_aggregation");

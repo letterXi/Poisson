@@ -1,20 +1,19 @@
 #include "poisson_problem/ddm/global_solve.hpp"
 #include "poisson_problem/vtk/vtk_save.hpp"
 #include <cmath>
+#include <exception>
 #include <iostream>
 
-double norm(const std::vector<double*>& u1, const std::vector<double*>& u2) {
-    double result = 0;
-    for (size_t i = 0; i < u1.size(); i++) {
-        result += (*u1[i] - *u2[i]) * (*u1[i] - *u2[i]);
-    }
-    return std::sqrt(result);
-}
-GlobalSolve::GlobalSolve(const Grid& grid, size_t overlap) : global_grid_(std::make_unique<Grid>(grid)) {
+GlobalSolve::GlobalSolve(const Grid& grid, size_t overlap, double tolerance, const std::string& glue_strategy,
+                         size_t maxit)
+    : global_grid_(std::make_unique<Grid>(grid)), tolerance_(tolerance), glue_strategy_(glue_strategy), maxit_(maxit) {
     splitDomain(overlap);
+    overlap_ = overlap;
 }
 
 void GlobalSolve::splitDomain(size_t overlap) {
+    if (overlap == 0 || overlap > global_grid_->get_N_x())
+        throw std::invalid_argument("invalid overlap");
     size_t temp = 0;
     size_t N = global_grid_->get_N_x();
     size_t N1, N2;
@@ -45,41 +44,44 @@ void GlobalSolve::splitDomain(size_t overlap) {
         1, Grid(right_x0, right_y0, N2, global_grid_->get_N_y(), global_grid_->get_h()), right_intersection);
 }
 
-// void GlobalSolve::solve() {
+void GlobalSolve::glueSolve(std::vector<double>& u, const std::string& strategy) {
+    for (size_t j = 0; j < global_grid_->get_N_y(); j++) {
+        for (size_t i = 0; i < global_grid_->get_N_x(); i++) {
+            double chi_left;
+            double chi_right;
+            double x = global_grid_->getX(i);
+            double y = global_grid_->getY(j);
+            if (strategy == "chi_const") {
+                chi_left = left_domain_solve_->chiConst(x, y);
+                chi_right = right_domain_solve_->chiConst(x, y);
+            } else if (strategy == "chi_continuous") {
+                chi_left = left_domain_solve_->chiContinuous(x, y);
+                chi_right = right_domain_solve_->chiContinuous(x, y);
+            } else {
+                throw std::invalid_argument("the strategy can be only chi_const or chi_continuous");
+            }
+            u[global_grid_->getK(i, j)] =
+                left_domain_solve_->expand(x, y) * chi_left + right_domain_solve_->expand(x, y) * chi_right;
+        }
+    }
+};
 
-// std::vector<double> u(global_grid_->points());
-// vtkWriter sol("sol_ex", "sol", *global_grid_);
-// for (int k = 1; k <= 1000; k++) {
-//     std::vector<double> ex_u_2;
-//     std::vector<double> ex_u_1;
-//     for (size_t j = 0; j < global_grid_->get_N_y(); j++) {
-//         for (size_t i = 0; i < global_grid_->get_N_x(); i++) {
-//             ex_u_2.push_back(right_domain_solve_->chiContinuous(global_grid_->getX(i), global_grid_->getY(j)));
-//         }
-//     }
-//     for (size_t j = 0; j < global_grid_->get_N_y(); j++) {
-//         for (size_t i = 0; i < global_grid_->get_N_x(); i++) {
-//             ex_u_1.push_back(left_domain_solve_->chiContinuous(global_grid_->getX(i), global_grid_->getY(j)));
-//         }
-//     }
+const std::vector<std::pair<size_t, double>>& GlobalSolve::getConvergenceHistory() const {
+    return convergence_history_;
+}
 
-// for (size_t j = 0; j < global_grid_->points(); j++) {
-//     u[j] = (ex_u_1[j] + ex_u_2[j]);
-// }
-
-// sol.add_scalars(u, "glue_" + std::to_string(k));
-// right_domain_solve_->give_boundary(*left_domain_solve_);
-// left_domain_solve_->give_boundary(*right_domain_solve_);
-// left_domain_solve_->solve();
-// right_domain_solve_->solve();
-
-// std::cout << k << ' '
-//           << norm(left_domain_solve_->getIntersectionSolve(), right_domain_solve_->getIntersectionSolve())
-//           << std::endl;
-
-// if (norm(left_domain_solve_->getIntersectionSolve(), right_domain_solve_->getIntersectionSolve()) < 1e-10)
-//     break;
-
-// sol.write();
-// }
-// }
+void GlobalSolve::clearConvergenceHistory() {
+    convergence_history_.clear();
+}
+void GlobalSolve::changeOverlap(size_t overlap) {
+    if (overlap == 0 || overlap > global_grid_->get_N_x())
+        throw std::invalid_argument("invalid overlap");
+    splitDomain(overlap);
+    clearConvergenceHistory();
+    overlap_ = overlap;
+}
+void GlobalSolve::changeGlueStrategy(const std::string& strategy) {
+    if (strategy != "chi_const" || strategy != "chi_continuous")
+        throw std::invalid_argument("the strategy can be only chi_const or chi_continuous");
+    glue_strategy_ = strategy;
+}

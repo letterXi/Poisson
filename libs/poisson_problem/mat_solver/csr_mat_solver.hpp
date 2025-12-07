@@ -8,7 +8,7 @@
 
 class AmgclSolver {
 public:
-    AmgclSolver(size_t maxit = 1000, double eps = 1e-8);
+    AmgclSolver(size_t maxit = 1000, double eps = 1e-11);
     ~AmgclSolver();
     AmgclSolver(std::initializer_list<std::pair<std::string, std::string>> amgc_params);
     void solve(const std::vector<double>& rhs, std::vector<double>& ret) const;
