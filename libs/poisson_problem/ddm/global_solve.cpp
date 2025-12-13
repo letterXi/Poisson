@@ -1,8 +1,8 @@
 #include "poisson_problem/ddm/global_solve.hpp"
 #include "poisson_problem/vtk/vtk_save.hpp"
 #include <cmath>
-#include <exception>
 #include <iostream>
+#include <stdexcept>
 
 GlobalSolve::GlobalSolve(const Grid& grid, size_t overlap, double tolerance, const std::string& glue_strategy,
                          size_t maxit)
@@ -12,31 +12,38 @@ GlobalSolve::GlobalSolve(const Grid& grid, size_t overlap, double tolerance, con
 }
 
 void GlobalSolve::splitDomain(size_t overlap) {
-    if (overlap == 0 || overlap > global_grid_->get_N_x())
+    if (overlap == 0 || overlap > global_grid_->get_N_x() - 1)
         throw std::invalid_argument("invalid overlap");
-    size_t temp = 0;
+
     size_t N = global_grid_->get_N_x();
     size_t N1, N2;
-    if (overlap % 2 == 0) {
-        temp = overlap / 2 - 1;
-    } else if (overlap % 2 != 0)
-        temp = overlap / 2;
-    if (N % 2 != 0) {
-        N2 = N - N / 2 + 1 + temp;
-        N1 = N - N2 + overlap + 1;
-    } else if (N % 2 == 0) {
-        N1 = N / 2 + 1 + temp;
-        N2 = N - N1 + overlap + 1;
-    }
-
+    size_t temp = 0;
     double left_x0 = 0.0;
     double left_y0 = 0.0;
-
-    double right_x0 = static_cast<double>(N1 - overlap - 1) * global_grid_->get_h();
+    double right_x0 = 0.0;
     double right_y0 = 0.0;
+    size_t left_intersection = 0;
+    size_t right_intersection = N - 1;
 
-    size_t left_intersection = N1 - 1 - overlap;
-    size_t right_intersection = overlap;
+    if (overlap != N) {
+        if (overlap % 2 == 0) {
+            temp = overlap / 2 - 1;
+        } else if (overlap % 2 != 0)
+            temp = overlap / 2;
+        if (N % 2 != 0) {
+            N2 = N - N / 2 + 1 + temp;
+            N1 = N - N2 + overlap + 1;
+        } else if (N % 2 == 0) {
+            N1 = N / 2 + 1 + temp;
+            N2 = N - N1 + overlap + 1;
+        }
+
+        right_x0 = static_cast<double>(N1 - overlap - 1) * global_grid_->get_h();
+        right_y0 = 0.0;
+
+        left_intersection = N1 - 1 - overlap;
+        right_intersection = overlap;
+    }
 
     left_domain_solve_ = std::make_unique<LocalSolve>(
         0, Grid(left_x0, left_y0, N1, global_grid_->get_N_y(), global_grid_->get_h()), left_intersection);
@@ -81,7 +88,20 @@ void GlobalSolve::changeOverlap(size_t overlap) {
     overlap_ = overlap;
 }
 void GlobalSolve::changeGlueStrategy(const std::string& strategy) {
-    if (strategy != "chi_const" || strategy != "chi_continuous")
-        throw std::invalid_argument("the strategy can be only chi_const or chi_continuous");
-    glue_strategy_ = strategy;
+    if (strategy == "chi_const" || strategy == "chi_continuous") {
+        glue_strategy_ = strategy;
+        left_domain_solve_->resetSolve();
+        right_domain_solve_->resetSolve();
+        clearConvergenceHistory();
+        return;
+    }
+    throw std::invalid_argument("the strategy can be only chi_const or chi_continuous");
+}
+
+LocalSolve GlobalSolve::getLeftLocalSolve() const {
+    return *left_domain_solve_;
+}
+
+LocalSolve GlobalSolve::getRightLocalSolve() const {
+    return *right_domain_solve_;
 }

@@ -1,5 +1,6 @@
 #include "poisson_problem/ddm/local_solve.hpp"
 #include "poisson_problem/mat_solver/csr_mat_solver.hpp"
+#include <algorithm>
 LocalSolve::LocalSolve(size_t id, Grid grid, size_t intersection)
     : id_(id), grid_(grid), intersection_(intersection), u_(grid_.points(), 0.0), boundary_(grid_.get_N_y(), 0.0),
       slae_(grid_) {}
@@ -60,17 +61,23 @@ double LocalSolve::chiContinuous(double x, double y) const {
     if (!grid_.is_in_domain(x, y))
         return 0.0;
     if (id_ == 0) {
-        if (i >= intersection_)
+        if (i > intersection_)
             return (grid_.getX(grid_.get_N_x() - 1) - x) /
                    (grid_.get_h() * static_cast<double>(grid_.get_N_x() - 1 - intersection_));
         return 1.0;
-    } else {
-        if (i <= intersection_)
+    } else if (id_ == 1) {
+        if (i < intersection_)
             return (x - grid_.getX(0)) / (grid_.get_h() * static_cast<double>(intersection_));
         return 1.0;
     }
+    throw std::invalid_argument("id");
 }
 
 const Grid& LocalSolve::get_grid() const {
     return grid_;
+}
+
+void LocalSolve::resetSolve() {
+    std::fill(u_.begin(), u_.end(), 0.0);
+    std::fill(boundary_.begin(), boundary_.end(), 0.0);
 }

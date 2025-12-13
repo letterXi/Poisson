@@ -32,3 +32,5 @@ add_library(
     ${SRC}
     ${HEADERS}
 )
+
+add_subdirectory(test)

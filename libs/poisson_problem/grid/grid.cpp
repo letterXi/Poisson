@@ -1,9 +1,17 @@
 #include "poisson_problem/grid/grid.hpp"
 #include <cmath>
+#include <stdexcept>
 #include <utility>
 
 Grid::Grid(double x_0, double y_0, size_t N_x, size_t N_y, double h)
-    : x_0_(x_0), y_0_(y_0), N_x_(N_x), N_y_(N_y), h_(h) {}
+    : x_0_(x_0), y_0_(y_0), N_x_(N_x), N_y_(N_y), h_(h) {
+    if (N_x == 0 || N_y == 0) {
+        throw std::invalid_argument("Grid dimensions must be positive");
+    }
+    if (h <= 0.0) {
+        throw std::invalid_argument("Grid step must be positive");
+    }
+}
 double Grid::getX(size_t i) const {
     return x_0_ + static_cast<double>(i) * h_;
 }
@@ -14,7 +22,6 @@ double Grid::getY(size_t j) const {
 size_t Grid::getK(size_t i, size_t j) const {
     return i + j * N_x_;
 }
-
 
 size_t Grid::get_N_x() const {
     return N_x_;
@@ -39,7 +46,6 @@ size_t Grid::getJ(double y) const {
     return static_cast<size_t>(std::round((y - y_0_) / h_));
 }
 
-
 bool Grid::is_boundary(size_t i, size_t j) const {
     if (i == 0 || j == 0 || i == N_x_ - 1 || j == N_y_ - 1) {
         return true;
@@ -48,9 +54,8 @@ bool Grid::is_boundary(size_t i, size_t j) const {
     return false;
 }
 
-bool Grid::is_in_domain(double x, double y) const
-{
-    if (x < getX(0) || x > getX(N_x_ - 1) || y < getY(0) || y > getY(N_y_ - 1) )
-            return false;
+bool Grid::is_in_domain(double x, double y) const {
+    if (x < getX(0) || x > getX(N_x_ - 1) || y < getY(0) || y > getY(N_y_ - 1))
+        return false;
     return true;
 }

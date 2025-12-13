@@ -11,7 +11,7 @@ RUN apt-get update  && \
     apt-get install -y catch2 && \
     apt-get install -y tree && \
     apt-get install -y vim && \
-    apt-get install -y python
+    apt-get install -y python3 python3-pip python3-numpy python3-matplotlib
 
 RUN mkdir /app
 

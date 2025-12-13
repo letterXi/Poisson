@@ -1,5 +1,5 @@
 #define CATCH_CONFIG_MAIN
-#include "CsrMatrix.hpp"
+#include "poisson_problem/mat/csr_matrix.hpp"
 #include <catch2/catch_all.hpp>
 #include <vector>
 using Catch::Approx;

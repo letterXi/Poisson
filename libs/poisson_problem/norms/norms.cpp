@@ -9,3 +9,19 @@ double inf_norm(const std::vector<double>& u) {
     }
     return temp;
 }
+
+double l2_norm(const std::vector<double>& u) {
+    double temp = 0.0;
+    for (auto x : u) {
+        temp += x * x;
+    }
+    return std::sqrt(temp);
+}
+
+double rms_norm(const std::vector<double>& u) {
+    double temp = 0.0;
+    for (auto x : u) {
+        temp += x * x;
+    }
+    return std::sqrt(temp / static_cast<double>(u.size()));
+}

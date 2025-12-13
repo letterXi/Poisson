@@ -17,6 +17,9 @@ public:
     void changeOverlap(size_t overlap);
     void changeGlueStrategy(const std::string& strategy);
     void clearConvergenceHistory();
+    void splitDomain(size_t overlap);
+    LocalSolve getLeftLocalSolve() const;
+    LocalSolve getRightLocalSolve() const;
 
 protected:
     std::unique_ptr<LocalSolve> left_domain_solve_;
@@ -29,7 +32,6 @@ protected:
     size_t maxit_;
 
     void glueSolve(std::vector<double>& u, const std::string& strategy);
-    void splitDomain(size_t overlap);
 };
 
 #endif

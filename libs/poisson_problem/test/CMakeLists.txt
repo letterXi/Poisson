@@ -1,12 +1,14 @@
 add_executable(
-    PoissonProblem_test
-    matrix_test.cpp
-    matrix_solver_test.cpp
-    Poisson_test.cpp
+    poisson_problem_test
+    csr_mat_solver_test.cpp
+    csr_matrix_test.cpp
 )
 
 target_link_libraries(
-    PoissonProblem_test
-    PRIVATE PoissonProblemLib
+    poisson_problem_test
+    PRIVATE poisson_problem_lib
             Catch2::Catch2WithMain
 )
+
+include(Catch)
+catch_discover_tests(poisson_problem_test)

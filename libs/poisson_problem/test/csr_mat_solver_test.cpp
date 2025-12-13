@@ -1,6 +1,6 @@
 #define CATCH_CONFIG_MAIN
-#include "AmgclSolver.hpp"
-#include "CsrMatrix.hpp"
+#include "poisson_problem/mat/csr_matrix.hpp"
+#include "poisson_problem/mat_solver/csr_mat_solver.hpp"
 #include <catch2/catch_all.hpp>
 #include <vector>
 using Catch::Approx;

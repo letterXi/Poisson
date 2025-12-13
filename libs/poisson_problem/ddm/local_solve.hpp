@@ -17,6 +17,7 @@ public:
     double chiContinuous(double x, double y) const;
     double chiConst(double x, double y) const;
     double expand(double x, double y) const;
+    void resetSolve();
 
 private:
     size_t id_;

@@ -2,6 +2,7 @@
 #define JACOBI_SOLVE_HPP
 
 #include "poisson_problem/ddm/global_solve.hpp"
+#include <optional>
 
 class JacobiSolve : public GlobalSolve {
 public:

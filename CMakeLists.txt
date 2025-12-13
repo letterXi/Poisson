@@ -10,7 +10,6 @@ add_compile_options(
     -Wall
     -Wextra
     -Wpedantic
-    -Wconversion
     -Wunused-const-variable
     -Wlogical-op
     -Wduplicated-cond
@@ -56,6 +55,7 @@ include_directories(
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/libs)
 
+enable_testing()
+
 add_subdirectory(libs)
 add_subdirectory(apps)
-
