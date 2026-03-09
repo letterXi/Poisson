@@ -1,0 +1,22 @@
+services:
+  dev-environment:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        HOST_UID: ${USER_ID:-1000}
+        HOST_GID: ${GROUP_ID:-1000}
+    container_name: devenv
+    volumes:
+      - ./:/app
+      - ./.vscode-server/:/home/user/.vscode-server
+    deploy:
+      resources:
+        limits:
+          cpus: '12.0'
+    working_dir: /app
+    environment:
+      - TZ=Europe/Moscow
+    tty: true
+    stdin_open: true
+    restart: unless-stopped

@@ -1,0 +1,27 @@
+set(SRC
+  schwarz_methods/subdomain.cpp 
+  schwarz_methods/schwarz_solver.cpp
+  schwarz_methods/jacobi_schwarz_solver.cpp
+  schwarz_methods/original_schwarz_solver.cpp
+  mat/csr_matrix.cpp
+  mat_solver/csr_mat_solver.cpp
+  utils/vtk.cpp
+)
+
+set(HEADERS
+  schwarz_methods/subdomain.hpp
+  schwarz_methods/schwarz_solver.hpp
+  mat/csr_matrix.hpp
+  mat_solver/csr_mat_solver.hpp
+  schwarz_methods/jacobi_schwarz_solver.hpp
+  schwarz_methods/original_schwarz_solver.hpp
+  utils/norms.hpp
+  utils/vtk.hpp
+)
+
+add_library(
+  poisson_problem_solver
+  STATIC
+  ${SRC}
+  ${HEADERS}
+)
