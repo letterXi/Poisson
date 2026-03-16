@@ -15,12 +15,18 @@ void VtkWriter::append_points(const std::vector<Point> points, size_t N, std::os
     for (auto point : points)
         fs << point.x << ' ' << point.y << ' ' << point.z << std::endl;
 }
-void VtkWriter::add_point_data(const std::vector<double>& data, const std::string& data_cap, std::ostream& fs) {
+template<typename T>
+void VtkWriter::add_point_data(const std::vector<T>& data, const std::string& data_cap, std::ostream& fs) {
     fs << "SCALARS " << data_cap << " float" << std::endl;
     fs << "LOOKUP_TABLE default" << std::endl;
-    for (auto value : data)
+    for (T value : data)
         fs << value << std::endl;
 }
+
+
+template void VtkWriter::add_point_data(const std::vector<double>& data, const std::string& data_cap, std::ostream& fs); 
+template void VtkWriter::add_point_data(const std::vector<size_t>& data, const std::string& data_cap, std::ostream& fs); 
+template void VtkWriter::add_point_data(const std::vector<int>& data, const std::string& data_cap, std::ostream& fs); 
 
 void VtkWriter::append_point_data_header(size_t data_size, std::ostream& fs) {
     fs << "POINT_DATA" << ' ' << data_size << std::endl;

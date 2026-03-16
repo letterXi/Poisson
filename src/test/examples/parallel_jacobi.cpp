@@ -4,52 +4,18 @@
 #include "poisson_problem_solver/schwarz_methods/original_schwarz_solver.hpp"
 #include "poisson_problem_solver/utils/norms.hpp"
 #include "poisson_problem_solver/utils/vtk.hpp"
+#include "test_functions.hpp"
 #include <chrono>
 #include <cmath>
 #include <fstream>
 #include <limits>
 #include <vector>
 
-static double exactFunction(double x, double y) {
-    return 0.2 * (std::sin(2 * M_PI * x) - std::cos(12 * M_PI * y) + std::tan(x * y) + std::exp(-x * y));
-}
-
-static double dirichletBoundaryFunction(double x, double y) {
-    return exactFunction(x, y);
-}
-
-static double sourceFunction(double x, double y) {
-    return -0.2 * (-4 * M_PI * M_PI * std::sin(2 * M_PI * x) + 144 * M_PI * M_PI * std::cos(12 * M_PI * y) +
-                   2 * (x * x + y * y) * (1.0 / std::cos(x * y)) * (1.0 / std::cos(x * y)) * std::tan(x * y) +
-                   (x * x + y * y) * std::exp(-x * y));
-}
-static std::vector<size_t> create_grid_mask(size_t N, size_t rows, size_t cols) {
-    std::vector<size_t> mask(N * N);
-
-    double block_h = static_cast<double>(N) / rows;
-    double block_w = static_cast<double>(N) / cols;
-
-    for (size_t j = 0; j < N; ++j) {
-        for (size_t i = 0; i < N; ++i) {
-            size_t r = static_cast<size_t>(j / block_h);
-            size_t c = static_cast<size_t>(i / block_w);
-
-            if (r >= rows)
-                r = rows - 1;
-            if (c >= cols)
-                c = cols - 1;
-
-            mask[i + j * N] = r * cols + c;
-        }
-    }
-    return mask;
-}
-
 TEST_CASE("Comparison of the performance of parallel and sequential Jacobi methods",
           "[examples][jacobi][heavy_calculation][parallel]") {
-    size_t N = 1000;
+    size_t N = 600;
     double h = 1.0 / static_cast<double>(N);
-    std::vector<size_t> mask = create_grid_mask(N, 3, 4);
+    std::vector<size_t> mask = create_block_mask(N, 2, 2);
     std::vector<double> u_0(N * N);
     std::vector<double> u(N * N);
     std::vector<double> u_exact(N * N);

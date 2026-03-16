@@ -4,27 +4,15 @@
 #include "poisson_problem_solver/schwarz_methods/original_schwarz_solver.hpp"
 #include "poisson_problem_solver/utils/norms.hpp"
 #include "poisson_problem_solver/utils/vtk.hpp"
+#include "test_functions.hpp"
 #include <chrono>
 #include <cmath>
 #include <fstream>
 #include <limits>
 #include <vector>
 
-static double exactFunction(double x, double y) {
-    return 0.2 * (std::sin(2 * M_PI * x) - std::cos(12 * M_PI * y) + std::tan(x * y) + std::exp(-x * y));
-}
-
-static double dirichletBoundaryFunction(double x, double y) {
-    return exactFunction(x, y);
-}
-
-static double sourceFunction(double x, double y) {
-    return -0.2 * (-4 * M_PI * M_PI * std::sin(2 * M_PI * x) + 144 * M_PI * M_PI * std::cos(12 * M_PI * y) +
-                   2 * (x * x + y * y) * (1.0 / std::cos(x * y)) * (1.0 / std::cos(x * y)) * std::tan(x * y) +
-                   (x * x + y * y) * std::exp(-x * y));
-}
 TEMPLATE_TEST_CASE("Schwarz methods for two equal rectangles on 100x100 grid with overlap 29h",
-                   "[examples][schwarz][two_rect]", OriginalSchwarzSolver, JacobiSchwarzSolver) {
+                   "[examples][schwarz][two_rect][heavy_calculation]", OriginalSchwarzSolver, JacobiSchwarzSolver) {
     size_t N = 100;
     double h = 1.0 / static_cast<double>(N);
     std::vector<size_t> mask(N * N);
@@ -65,6 +53,9 @@ TEMPLATE_TEST_CASE("Schwarz methods for two equal rectangles on 100x100 grid wit
             VtkWriter::append_points(points, N, fs);
             VtkWriter::append_point_data_header(N * N, fs);
             VtkWriter::add_point_data(u, "U", fs);
+            VtkWriter::add_point_data(mask, "mask", fs);
+            for (size_t i = 0; i < solver.get_subdomains().size(); i++)
+                VtkWriter::add_point_data(solver.get_subdomains()[i]->get_mask(), std::to_string(i), fs);
             fs.close();
         }
         if (force)

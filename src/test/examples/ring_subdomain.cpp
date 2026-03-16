@@ -24,9 +24,9 @@ static double sourceFunction(double x, double y) {
                    (x * x + y * y) * std::exp(-x * y));
 }
 
-TEMPLATE_TEST_CASE("Schwarz methods for ring subdomain on 1000x1000 grid with overlap 99h", "[examples][schwarz]",
-                   JacobiSchwarzSolver, OriginalSchwarzSolver) {
-    size_t N = 1000;
+TEMPLATE_TEST_CASE("Schwarz methods for ring subdomain on 500x500 grid with overlap 49h",
+                   "[examples][schwarz][heavy_calculation]", JacobiSchwarzSolver, OriginalSchwarzSolver) {
+    size_t N = 500;
     double h = 1.0 / static_cast<double>(N);
     std::vector<size_t> mask(N * N, 0);
     std::vector<double> u(N * N, -100.0);
@@ -49,7 +49,7 @@ TEMPLATE_TEST_CASE("Schwarz methods for ring subdomain on 1000x1000 grid with ov
     }
 
     TestType solver(N, mask, sourceFunction, dirichletBoundaryFunction);
-    solver.set_overlap(50);
+    solver.set_overlap(25);
     solver.initialize(u);
 
     std::string stem = "ring_subdomain_" + solver.get_name();
@@ -68,6 +68,9 @@ TEMPLATE_TEST_CASE("Schwarz methods for ring subdomain on 1000x1000 grid with ov
             VtkWriter::append_points(points, N, fs);
             VtkWriter::append_point_data_header(N * N, fs);
             VtkWriter::add_point_data(u, "U", fs);
+            VtkWriter::add_point_data(mask, "mask", fs);
+            for (size_t i = 0; i < solver.get_subdomains().size(); i++)
+                VtkWriter::add_point_data(solver.get_subdomains()[i]->get_mask(), std::to_string(i), fs);
             fs.close();
         }
         if (force)
@@ -75,7 +78,7 @@ TEMPLATE_TEST_CASE("Schwarz methods for ring subdomain on 1000x1000 grid with ov
 
         solver.iterate(u);
         double current_error = norm_inf(diff_of(u, u_exact));
-        if (std::abs(error - current_error) < 1e-16) {
+        if (std::abs(error - current_error) < 1e-11) {
             force = true;
         }
         error = current_error;

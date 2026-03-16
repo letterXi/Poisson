@@ -25,4 +25,12 @@ inline double norm_inf(const std::vector<double>& v)
     return max_v;
 }
 
+inline double norm_L2(const std::vector<double>& v) {
+    double sum = 0.0;
+    for (double val : v) {
+        sum += val * val;
+    }
+    return std::sqrt(sum / v.size());
+}
+
 #endif

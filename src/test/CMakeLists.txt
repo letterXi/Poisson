@@ -13,6 +13,7 @@ set(SRC
 
 set(HEADERS
   main_test.hpp
+  examples/test_functions.hpp
 )
 
 add_executable(

@@ -3,6 +3,7 @@
 
 #include "catch2/catch_all.hpp"
 #include <iostream>
+#include "poisson_problem_solver/utils/grid_utils.hpp"
 
 using Catch::Approx;
 

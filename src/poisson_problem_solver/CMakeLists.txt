@@ -17,6 +17,7 @@ set(HEADERS
   schwarz_methods/original_schwarz_solver.hpp
   utils/norms.hpp
   utils/vtk.hpp
+  utils/grid_utils.hpp
 )
 
 add_library(

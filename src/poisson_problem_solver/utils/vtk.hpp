@@ -15,7 +15,7 @@ struct Point {
 
 void append_header(const std::string& describe, std::ostream& fs);
 void append_points(const std::vector<Point> points, size_t N, std::ostream& fs);
-void add_point_data(const std::vector<double>& data, const std::string& data_cap, std::ostream& fs);
+template<typename T> void add_point_data(const std::vector<T>& data, const std::string& data_cap, std::ostream& fs);
 void append_point_data_header(size_t data_size, std::ostream& fs);
 
 class StepManager {
