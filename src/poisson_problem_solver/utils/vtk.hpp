@@ -4,14 +4,9 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include "poisson_problem_solver/grid/grid_regular2d.hpp"
 
 namespace VtkWriter {
-
-struct Point {
-    double x;
-    double y;
-    double z;
-};
 
 void append_header(const std::string& describe, std::ostream& fs);
 void append_points(const std::vector<Point> points, size_t N, std::ostream& fs);

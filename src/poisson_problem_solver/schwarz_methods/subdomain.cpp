@@ -73,6 +73,10 @@ void Subdomain::create_matrix(double h, std::function<double(double, double)> so
     std::vector<size_t> cols;
     std::vector<double> vals;
 
+    cols.reserve(indices_.size() * 5); 
+    vals.reserve(indices_.size() * 5);
+    addr.reserve(indices_.size() + 1);
+
     rhs_ = std::vector<double>(indices_.size(), 0.0);
 
     double coeff_1 = -1.0 / (h * h);

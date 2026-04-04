@@ -11,7 +11,6 @@ void OriginalSchwarzSolver::iterate(std::vector<double>& u) {
         for (size_t i = 0; i < indices.size(); i++)
             u[indices[i]] = local_u[i];
     }
-    this->connect_solves(u);
 }
 
 std::string OriginalSchwarzSolver::get_name() const {

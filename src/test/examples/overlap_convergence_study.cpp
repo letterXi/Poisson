@@ -31,7 +31,7 @@ TEMPLATE_TEST_CASE("Overlap convergence study", "[overlap][heavy_calculation]", 
     }
 
     size_t iters = 0;
-    for (size_t o = 1; o <= N*N; o++) {
+    for (size_t o = 1; o <= N; o++) {
         TestType solver(N, mask, sourceFunction, dirichletBoundaryFunction, 10000, 1e-11);
         solver.set_overlap(o);
         solver.initialize(u_0);
@@ -48,6 +48,7 @@ TEMPLATE_TEST_CASE("Overlap convergence study", "[overlap][heavy_calculation]", 
 
         for (size_t iter = 0; iter < 10000; iter++) {
             solver.iterate(u);
+            solver.connect_solves(u);
             double current_error = norm_L2(diff_of(u, u_exact));
             if (std::abs(error - current_error) < 1e-11) {
                 iters = iter;
@@ -56,7 +57,7 @@ TEMPLATE_TEST_CASE("Overlap convergence study", "[overlap][heavy_calculation]", 
             error = current_error;
         }
 
-        file << o << ',' << iters << std::endl;
+        file << solver.overlap_ratio() << ',' << iters << std::endl;
         file.close();
         if (iters == 1)
           break;

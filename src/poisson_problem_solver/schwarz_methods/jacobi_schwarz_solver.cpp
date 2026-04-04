@@ -8,7 +8,6 @@ void JacobiSchwarzSolver::iterate(std::vector<double>& u) {
         sub->get_overlap_boundary(u);
         sub->solve();
     });
-    this->connect_solves(u);
 }
 
 void JacobiSchwarzSolver::parallel_iterate(std::vector<double>& u) {
@@ -16,14 +15,15 @@ void JacobiSchwarzSolver::parallel_iterate(std::vector<double>& u) {
         sub->get_overlap_boundary(u);
         sub->solve();
     });
-    this->connect_solves(u);
 }
 
 void JacobiSchwarzSolver::parallel_solve(std::vector<double>& u, size_t& iters) {
+    std::vector<double> u_old(u.size());
     for (size_t iter = 1; iter <= maxiter_; iter++) {
-        std::vector<double> u_old = u;
+        u_old = u; 
         this->parallel_iterate(u);
-        if (norm_inf(diff_of(u, u_old)) < tolerance_) {
+        this->connect_solves(u);
+        if (norm_inf_2(u, u_old) < tolerance_) {
             iters = iter;
             break;
         }

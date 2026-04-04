@@ -1,12 +1,14 @@
 #include "poisson_problem_solver/utils/norms.hpp"
-#include <stdexcept>
 #include "schwarz_solver.hpp"
 #include <algorithm>
+#include <execution>
+#include <stdexcept>
 #include <unordered_set>
 
 SchwarzSolver::SchwarzSolver(size_t N, std::vector<size_t> mask, std::function<double(double, double)> source_function,
                              std::function<double(double, double)> boundary_function, size_t maxiter, double tolerance)
-    : N_(N), mask_(mask), source_function_(source_function), boundary_function_(boundary_function), maxiter_(maxiter), tolerance_(tolerance) {
+    : N_(N), mask_(mask), source_function_(source_function), boundary_function_(boundary_function), maxiter_(maxiter),
+      tolerance_(tolerance) {
     std::vector<size_t> unique_idx = this->find_unique_indices();
     for (size_t i = 0; i < unique_idx.size(); i++) {
         subdomains_.push_back(std::make_unique<Subdomain>(N));
@@ -34,6 +36,8 @@ std::vector<size_t> SchwarzSolver::find_unique_indices() const {
 }
 
 void SchwarzSolver::set_overlap(size_t overlap) {
+    o_ratio_ = 0.0;
+    overlap_point_.assign(N_*N_, 0);
     for (size_t o = 1; o <= overlap; o++) {
         for (auto& sub : subdomains_) {
             if (o == overlap)
@@ -52,22 +56,27 @@ void SchwarzSolver::set_overlap(size_t overlap) {
             if (sub->contains(point))
                 over++;
         double weight = 1.0 / static_cast<double>(over);
+        if(over > 1)
+        {
+          o_ratio_ += 1.0;
+        }
+        overlap_point_[point] = over;
         for (auto& sub : subdomains_)
             if (sub->contains(point))
                 sub->set_weight(point, weight);
     }
+    o_ratio_ = 100.0 * o_ratio_ / static_cast<double>(N_ * N_);
     this->create_slaes();
 }
 
 void SchwarzSolver::create_slaes() {
     double h = 1.0 / static_cast<double>(N_);
-    for (auto& sub : subdomains_)
-        sub->create_matrix(h, source_function_, boundary_function_);
+    std::for_each(std::execution::par, subdomains_.begin(), subdomains_.end(),
+                  [&](const auto& sub) { sub->create_matrix(h, source_function_, boundary_function_); });
 }
 
 void SchwarzSolver::connect_solves(std::vector<double>& u) {
-    std::fill(u.begin(), u.end(), 0.0);
-
+    std::fill(std::execution::par, u.begin(), u.end(), 0.0);
     for (const auto& sub : subdomains_) {
         const auto& indices = sub->get_indices();
         const auto& weights = sub->get_weights();
@@ -79,16 +88,18 @@ void SchwarzSolver::connect_solves(std::vector<double>& u) {
 }
 
 void SchwarzSolver::solve(std::vector<double>& u, size_t& iters) {
+    std::vector<double> u_old(u.size());
     for (size_t iter = 1; iter <= maxiter_; iter++) {
-        std::vector<double> u_old = u;
+        u_old = u;
         this->iterate(u);
-        if (norm_inf(diff_of(u, u_old)) < tolerance_) {
+        this->connect_solves(u);
+        if (norm_inf_2(u, u_old) < tolerance_) {
             iters = iter;
             break;
         }
     }
     if (iters >= maxiter_)
-      throw std::runtime_error("Convergence failed: residuals too high");
+        throw std::runtime_error("Convergence failed: residuals too high");
 }
 
 void SchwarzSolver::initialize(const std::vector<double>& global_u) {
@@ -100,4 +111,17 @@ void SchwarzSolver::initialize(const std::vector<double>& global_u) {
             local_u[i] = global_u[indices[i]];
         sub->set_u(local_u);
     }
+}
+
+size_t SchwarzSolver::N() const {
+    return N_;
+}
+
+double SchwarzSolver::overlap_ratio() const {
+    return o_ratio_;
+}
+
+const std::vector<double>& SchwarzSolver::overlap_point() const
+{
+  return overlap_point_;
 }

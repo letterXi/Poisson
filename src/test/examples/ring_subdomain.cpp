@@ -1,94 +1,43 @@
 #include "../main_test.hpp"
+#include "poisson_problem_solver/grid/grid_regular2d.hpp"
 #include "poisson_problem_solver/mat_solver/csr_mat_solver.hpp"
 #include "poisson_problem_solver/schwarz_methods/jacobi_schwarz_solver.hpp"
 #include "poisson_problem_solver/schwarz_methods/original_schwarz_solver.hpp"
 #include "poisson_problem_solver/utils/norms.hpp"
 #include "poisson_problem_solver/utils/vtk.hpp"
-#include <chrono>
+#include "test_functions.hpp"
 #include <cmath>
 #include <fstream>
 #include <limits>
 #include <vector>
 
-static double exactFunction(double x, double y) {
-    return 0.2 * (std::sin(2 * M_PI * x) - std::cos(12 * M_PI * y) + std::tan(x * y) + std::exp(-x * y));
-}
-
-static double dirichletBoundaryFunction(double x, double y) {
-    return exactFunction(x, y);
-}
-
-static double sourceFunction(double x, double y) {
-    return -0.2 * (-4 * M_PI * M_PI * std::sin(2 * M_PI * x) + 144 * M_PI * M_PI * std::cos(12 * M_PI * y) +
-                   2 * (x * x + y * y) * (1.0 / std::cos(x * y)) * (1.0 / std::cos(x * y)) * std::tan(x * y) +
-                   (x * x + y * y) * std::exp(-x * y));
+bool is_ring(const Point& point, const Point& center, double r, double R) {
+    double x = point.x;
+    double y = point.y;
+    double xc = center.x;
+    double yc = center.y;
+    return (((x - xc) * (x - xc) + (y - yc) * (y - yc) <= R * R) &&
+            ((x - xc) * (x - xc) + (y - yc) * (y - yc) >= r * r));
 }
 
 TEMPLATE_TEST_CASE("Schwarz methods for ring subdomain on 500x500 grid with overlap 49h",
-                   "[examples][schwarz][heavy_calculation]", JacobiSchwarzSolver, OriginalSchwarzSolver) {
-    size_t N = 500;
-    double h = 1.0 / static_cast<double>(N);
+                   "[examples][schwarz][heavy_calculation][ring]", JacobiSchwarzSolver, OriginalSchwarzSolver) {
+    size_t N = 100;
+    RegularGrid2D grid(0, 0, 1, 1, N, N);
     std::vector<size_t> mask(N * N, 0);
-    std::vector<double> u(N * N, -100.0);
+    std::vector<double> u(N * N, 0);
     std::vector<double> u_exact(N * N);
 
-    std::vector<VtkWriter::Point> points(N * N);
-    for (size_t j = 0; j < N; j++) {
-        for (size_t i = 0; i < N; i++) {
-            double x = static_cast<double>(i) * h;
-            double y = static_cast<double>(j) * h;
-            size_t k = i + j * N;
-            if (((x - 0.5) * (x - 0.5) + (y - 0.5) * (y - 0.5) <= 0.4 * 0.4) &&
-                ((x - 0.5) * (x - 0.5) + (y - 0.5) * (y - 0.5) >= 0.2 * 0.2)) {
-                u[k] = 100.0;
-                mask[k] = 6;
-            }
-            u_exact[k] = exactFunction(x, y);
-            points[k] = {x, y, 0.0};
-        }
+    const auto& points = grid.get_points();
+    for (size_t k = 0; k < points.size(); k++) {
+        if (is_ring(points[k], {0.4, 0.7, 0}, 0.1, 0.3))
+            mask[k] = 1;
     }
 
     TestType solver(N, mask, sourceFunction, dirichletBoundaryFunction);
-    solver.set_overlap(25);
+    solver.set_overlap(10);
     solver.initialize(u);
 
-    std::string stem = "ring_subdomain_" + solver.get_name();
-    VtkWriter::StepManager schwarz_filename_mgr(stem, 1);
-
-    bool force = false;
-    double error = std::numeric_limits<double>::max();
-    size_t iters;
-
-    auto start = std::chrono::high_resolution_clock::now();
-    for (size_t iter = 0; iter < 10000; iter++) {
-        std::string path = schwarz_filename_mgr.add(iter, force);
-        if (!path.empty()) {
-            std::ofstream fs(path);
-            VtkWriter::append_header(stem, fs);
-            VtkWriter::append_points(points, N, fs);
-            VtkWriter::append_point_data_header(N * N, fs);
-            VtkWriter::add_point_data(u, "U", fs);
-            VtkWriter::add_point_data(mask, "mask", fs);
-            for (size_t i = 0; i < solver.get_subdomains().size(); i++)
-                VtkWriter::add_point_data(solver.get_subdomains()[i]->get_mask(), std::to_string(i), fs);
-            fs.close();
-        }
-        if (force)
-            break;
-
-        solver.iterate(u);
-        double current_error = norm_inf(diff_of(u, u_exact));
-        if (std::abs(error - current_error) < 1e-11) {
-            force = true;
-        }
-        error = current_error;
-        iters = iter;
-    }
-
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double, std::milli> elapsed = end - start;
-
-    std::cout << "==========" << stem << "==========" << std::endl;
-    std::cout << "iters = " << iters << ", error = " << error << std::endl;
-    std::cout << "Iteration time: " << elapsed.count() << " ms" << std::endl << std::endl;
+    std::string stem = "ring1_" + solver.get_name();
+    solve_with_screenshot(stem, u, u_exact, grid, solver);
 }

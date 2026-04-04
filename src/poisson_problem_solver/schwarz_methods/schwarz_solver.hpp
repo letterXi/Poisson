@@ -34,6 +34,12 @@ public:
 
     virtual std::string get_name() const = 0;
 
+    size_t N() const;
+
+    double overlap_ratio() const;
+
+    const std::vector<double>& overlap_point() const;
+
 protected:
     size_t N_;
     std::vector<size_t> mask_;
@@ -43,6 +49,8 @@ protected:
     std::function<double(double, double)> boundary_function_;
     size_t maxiter_;
     double tolerance_;
+    double o_ratio_;
+    std::vector<double> overlap_point_;
 };
 
 #endif

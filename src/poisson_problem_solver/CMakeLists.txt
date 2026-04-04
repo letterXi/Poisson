@@ -6,6 +6,7 @@ set(SRC
   mat/csr_matrix.cpp
   mat_solver/csr_mat_solver.cpp
   utils/vtk.cpp
+  utils/tictoc.cpp
 )
 
 set(HEADERS
@@ -18,6 +19,8 @@ set(HEADERS
   utils/norms.hpp
   utils/vtk.hpp
   utils/grid_utils.hpp
+  grid/grid_regular2d.hpp
+  utils/tictoc.hpp
 )
 
 add_library(
