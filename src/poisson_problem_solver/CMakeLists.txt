@@ -18,9 +18,9 @@ set(HEADERS
   schwarz_methods/original_schwarz_solver.hpp
   utils/norms.hpp
   utils/vtk.hpp
-  utils/grid_utils.hpp
   grid/grid_regular2d.hpp
   utils/tictoc.hpp
+  utils/make_masks.hpp
 )
 
 add_library(

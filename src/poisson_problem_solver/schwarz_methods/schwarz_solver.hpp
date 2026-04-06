@@ -26,6 +26,8 @@ public:
 
     void solve(std::vector<double>& u, size_t& iters);
 
+    void solve(std::vector<double>& u, const std::vector<double>& u_exact, size_t& iters);
+
     void create_slaes();
 
     void connect_solves(std::vector<double>& u);

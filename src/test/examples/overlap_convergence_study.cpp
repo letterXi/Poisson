@@ -4,6 +4,7 @@
 #include "poisson_problem_solver/schwarz_methods/original_schwarz_solver.hpp"
 #include "poisson_problem_solver/utils/norms.hpp"
 #include "poisson_problem_solver/utils/vtk.hpp"
+#include "poisson_problem_solver/utils/make_masks.hpp"
 #include "test_functions.hpp"
 #include <cmath>
 #include <fstream>
@@ -13,22 +14,12 @@
 TEMPLATE_TEST_CASE("Overlap convergence study", "[overlap][heavy_calculation]", OriginalSchwarzSolver,
                    JacobiSchwarzSolver) {
     size_t N = 100;
-    double h = 1.0 / static_cast<double>(N);
-    std::vector<size_t> mask = create_block_mask(N, 4, 4);
+    RegularGrid2D grid(0,0,1,1, N,N);
+    std::vector<size_t> mask = block_mask(grid, 4, 4);
     std::vector<double> u(N * N);
-    std::vector<double> u_0(N * N);
+    std::vector<double> u_0(N * N, 0);
     std::vector<double> u_exact(N * N);
-
-    for (size_t j = 0; j < N; j++) {
-        for (size_t i = 0; i < N; i++) {
-            double x = static_cast<double>(i) * h;
-            double y = static_cast<double>(j) * h;
-            size_t k = i + j * N;
-
-            u_0[k] = 100.0 * std::sin(static_cast<double>(i) + std::cos(static_cast<double>(j)));
-            u_exact[k] = exactFunction(x, y);
-        }
-    }
+    fill_u_exact(u, grid);    
 
     size_t iters = 0;
     for (size_t o = 1; o <= N; o++) {

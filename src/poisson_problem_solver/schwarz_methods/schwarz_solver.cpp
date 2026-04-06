@@ -2,6 +2,7 @@
 #include "schwarz_solver.hpp"
 #include <algorithm>
 #include <execution>
+#include <iostream>
 #include <stdexcept>
 #include <unordered_set>
 
@@ -37,7 +38,7 @@ std::vector<size_t> SchwarzSolver::find_unique_indices() const {
 
 void SchwarzSolver::set_overlap(size_t overlap) {
     o_ratio_ = 0.0;
-    overlap_point_.assign(N_*N_, 0);
+    overlap_point_.assign(N_ * N_, 0);
     for (size_t o = 1; o <= overlap; o++) {
         for (auto& sub : subdomains_) {
             if (o == overlap)
@@ -56,9 +57,8 @@ void SchwarzSolver::set_overlap(size_t overlap) {
             if (sub->contains(point))
                 over++;
         double weight = 1.0 / static_cast<double>(over);
-        if(over > 1)
-        {
-          o_ratio_ += 1.0;
+        if (over > 1) {
+            o_ratio_ += 1.0;
         }
         overlap_point_[point] = over;
         for (auto& sub : subdomains_)
@@ -70,7 +70,7 @@ void SchwarzSolver::set_overlap(size_t overlap) {
 }
 
 void SchwarzSolver::create_slaes() {
-    double h = 1.0 / static_cast<double>(N_);
+    double h = 1.0 / (static_cast<double>(N_) - 1.0);
     std::for_each(std::execution::par, subdomains_.begin(), subdomains_.end(),
                   [&](const auto& sub) { sub->create_matrix(h, source_function_, boundary_function_); });
 }
@@ -101,6 +101,32 @@ void SchwarzSolver::solve(std::vector<double>& u, size_t& iters) {
     if (iters >= maxiter_)
         throw std::runtime_error("Convergence failed: residuals too high");
 }
+void SchwarzSolver::solve(std::vector<double>& u, const std::vector<double>& u_exact, size_t& iters) {
+    double last_error = norm_inf_2(u, u_exact);
+
+    for (size_t iter = 1; iter <= maxiter_; iter++) {
+        this->iterate(u);
+        this->connect_solves(u);
+
+        double current_error = norm_inf_2(u, u_exact);
+
+        if (current_error < tolerance_) {
+            iters = iter;
+            return;
+        }
+
+        if (std::abs(last_error - current_error) < 1e-15) {
+            iters = iter;
+            return;
+        }
+
+        last_error = current_error;
+        iters = iter;
+    }
+
+    if (iters >= maxiter_)
+        throw std::runtime_error("Convergence failed: error remains above tolerance");
+}
 
 void SchwarzSolver::initialize(const std::vector<double>& global_u) {
     for (auto& sub : subdomains_) {
@@ -121,7 +147,6 @@ double SchwarzSolver::overlap_ratio() const {
     return o_ratio_;
 }
 
-const std::vector<double>& SchwarzSolver::overlap_point() const
-{
-  return overlap_point_;
+const std::vector<double>& SchwarzSolver::overlap_point() const {
+    return overlap_point_;
 }

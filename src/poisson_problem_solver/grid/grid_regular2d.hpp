@@ -50,7 +50,7 @@ public:
     }
 
     double hy() const {
-        return (points_[1].y - points_[0].y);
+        return (points_[nx_].y - points_[0].y);
     }
 
 private:

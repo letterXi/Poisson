@@ -21,7 +21,7 @@ public:
         : solver_(mat, param), dim_((size_t)mat.nrows), maxit_(param.get("solver.maxiter", -1)) {}
 
     void solve(const std::vector<double>& rhs, std::vector<double>& ret) const {
-        ret.resize(dim_, 0.0);
+        if (ret.size() != dim_) ret.assign(dim_, 0.0);
         int n_iters;
         double err;
 

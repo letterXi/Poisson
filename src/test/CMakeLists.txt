@@ -9,6 +9,7 @@ set(SRC
   schwarz_solver_test.cpp
   mat_test.cpp
   mat_solver_test.cpp
+  performance_analysis/rectangles/partition.cpp
 )
 
 set(HEADERS

@@ -10,12 +10,13 @@
 #include <fstream>
 #include <limits>
 #include <vector>
+#include "poisson_problem_solver/utils/make_masks.hpp"
 
 TEMPLATE_TEST_CASE("Schwarz methods for two equal rectangles on 100x100 grid with overlap 29h",
                    "[examples][schwarz][two_rect][heavy_calculation]", OriginalSchwarzSolver, JacobiSchwarzSolver) {
     size_t N = 100;
     RegularGrid2D grid(0, 0, 1, 1, N, N);
-    std::vector<size_t> mask = create_block_mask(N, 1, 2);
+    std::vector<size_t> mask = block_mask(grid, 1, 2);
     std::vector<double> u(N * N, 0);
     std::vector<double> u_exact(N * N);
 

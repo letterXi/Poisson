@@ -11,7 +11,7 @@ void JacobiSchwarzSolver::iterate(std::vector<double>& u) {
 }
 
 void JacobiSchwarzSolver::parallel_iterate(std::vector<double>& u) {
-    std::for_each(std::execution::par, subdomains_.begin(), subdomains_.end(), [&](const auto& sub) {
+    std::for_each(std::execution::par_unseq, subdomains_.begin(), subdomains_.end(), [&](const auto& sub) {
         sub->get_overlap_boundary(u);
         sub->solve();
     });
@@ -30,6 +30,34 @@ void JacobiSchwarzSolver::parallel_solve(std::vector<double>& u, size_t& iters) 
     }
     if (iters >= maxiter_)
       throw std::runtime_error("Convergence failed: residuals too high");
+}
+
+
+void JacobiSchwarzSolver::parallel_solve(std::vector<double>& u, const std::vector<double>& u_exact, size_t& iters) {
+    double last_error = norm_inf_2(u, u_exact);
+
+    for (size_t iter = 1; iter <= maxiter_; iter++) {
+        this->parallel_iterate(u);
+        this->connect_solves(u);
+
+        double current_error = norm_inf_2(u, u_exact);
+
+        if (current_error < tolerance_) {
+            iters = iter;
+            return;
+        }
+
+        if (std::abs(last_error - current_error) < 1e-15) {
+            iters = iter;
+            return;
+        }
+
+        last_error = current_error;
+        iters = iter;
+    }
+
+    if (iters >= maxiter_)
+        throw std::runtime_error("Convergence failed: error remains above tolerance");
 }
 
 

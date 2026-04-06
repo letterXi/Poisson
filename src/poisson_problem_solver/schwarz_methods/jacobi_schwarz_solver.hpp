@@ -11,5 +11,6 @@ public:
     void iterate(std::vector<double>& u) override;
     void parallel_iterate(std::vector<double>& u);
     void parallel_solve(std::vector<double>& u, size_t& iters);
+    void parallel_solve(std::vector<double>& u, const std::vector<double>& u_exact, size_t& iters);
     std::string get_name() const override;
 };

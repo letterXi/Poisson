@@ -6,6 +6,9 @@
 #include <cmath>
 #include <iomanip>
 #include <iostream>
+#include "poisson_problem_solver/utils/vtk.hpp"
+#include "poisson_problem_solver/utils/norms.hpp"
+#include "poisson_problem_solver/schwarz_methods/schwarz_solver.hpp"
 
 inline double exactFunction(double x, double y) {
     return 0.2 * (std::sin(2 * M_PI * x) - std::cos(12 * M_PI * y) + std::tan(x * y) + std::exp(-x * y));
