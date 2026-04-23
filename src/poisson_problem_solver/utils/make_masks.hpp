@@ -75,6 +75,41 @@ inline std::vector<size_t> block_mask(const RegularGrid2D& grid, size_t rows, si
     return mask;
 }
 
+inline std::vector<size_t> diagonal_mask(const RegularGrid2D& grid) {
+    const size_t nx = grid.nx();
+    const size_t ny = grid.ny();
+    std::vector<size_t> mask(grid.npoints());
+
+    // Соотношение сторон для нормировки координат
+    // Используем double, чтобы сравнение было корректным для неквадратных сеток
+    double aspect = static_cast<double>(ny - 1) / static_cast<double>(nx - 1);
+
+    for (size_t j = 0; j < ny; ++j) {
+        for (size_t i = 0; i < nx; ++i) {
+            // Уравнения диагоналей в нормализованном виде:
+            // Главная: y = aspect * x
+            // Побочная: y = (ny - 1) - aspect * x
+
+            bool above_main = (static_cast<double>(j) > aspect * static_cast<double>(i));
+            bool above_back = (static_cast<double>(j) > static_cast<double>(ny - 1) - aspect * static_cast<double>(i));
+
+            size_t subdomain_id;
+            if (!above_main && !above_back) {
+                subdomain_id = 0; // Нижний треугольник
+            } else if (above_main && !above_back) {
+                subdomain_id = 1; // Левый треугольник
+            } else if (above_main && above_back) {
+                subdomain_id = 2; // Верхний треугольник
+            } else {
+                subdomain_id = 3; // Правый треугольник
+            }
+
+            mask[i + j * nx] = subdomain_id;
+        }
+    }
+    return mask;
+}
+
 inline std::vector<size_t> nested_rects_mask(const RegularGrid2D& grid, size_t n_layers) {
     const size_t nx = grid.nx();
     const size_t ny = grid.ny();

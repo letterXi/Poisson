@@ -1,8 +1,6 @@
 #include "../main_test.hpp"
 #include "poisson_problem_solver/grid/grid_regular2d.hpp"
 #include "poisson_problem_solver/mat_solver/csr_mat_solver.hpp"
-#include "poisson_problem_solver/schwarz_methods/jacobi_schwarz_solver.hpp"
-#include "poisson_problem_solver/schwarz_methods/original_schwarz_solver.hpp"
 #include "poisson_problem_solver/utils/norms.hpp"
 #include "poisson_problem_solver/utils/vtk.hpp"
 #include "test_functions.hpp"

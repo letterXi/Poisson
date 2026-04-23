@@ -1,7 +1,5 @@
 #include "../main_test.hpp"
 #include "poisson_problem_solver/mat_solver/csr_mat_solver.hpp"
-#include "poisson_problem_solver/schwarz_methods/jacobi_schwarz_solver.hpp"
-#include "poisson_problem_solver/schwarz_methods/original_schwarz_solver.hpp"
 #include "poisson_problem_solver/utils/norms.hpp"
 #include "poisson_problem_solver/utils/vtk.hpp"
 #include "test_functions.hpp"
@@ -15,7 +13,7 @@
 
 TEMPLATE_TEST_CASE("Schwarz methods for four squares on 100x100 grid with overlap 31h",
                    "[examples][schwarz][heavy_calculation][4_subs]", JacobiSchwarzSolver, OriginalSchwarzSolver) {
-    size_t N = 200;
+    size_t N = 100;
     RegularGrid2D grid(0,0,1,1, N,N);
     std::vector<size_t> mask = block_mask(grid, 2, 2);
     std::vector<double> u(N * N, 0.0);
@@ -23,7 +21,7 @@ TEMPLATE_TEST_CASE("Schwarz methods for four squares on 100x100 grid with overla
     fill_u_exact(u_exact, grid);
 
     TestType solver(N, mask, sourceFunction, dirichletBoundaryFunction);
-    solver.set_overlap(20);
+    solver.set_overlap(15);
     solver.initialize(u);
 
     std::string stem = "four_squares_" + solver.get_name();

@@ -44,6 +44,10 @@ public:
 
     void set_u(const std::vector<double>& u);
 
+    size_t npoints() const;
+
+    bool is_global_collapse() const;
+
 private:
     size_t N_;
     std::vector<size_t> indices_;

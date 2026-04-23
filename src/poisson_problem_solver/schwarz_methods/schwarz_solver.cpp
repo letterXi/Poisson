@@ -110,11 +110,6 @@ void SchwarzSolver::solve(std::vector<double>& u, const std::vector<double>& u_e
 
         double current_error = norm_inf_2(u, u_exact);
 
-        if (current_error < tolerance_) {
-            iters = iter;
-            return;
-        }
-
         if (std::abs(last_error - current_error) < 1e-15) {
             iters = iter;
             return;
@@ -149,4 +144,17 @@ double SchwarzSolver::overlap_ratio() const {
 
 const std::vector<double>& SchwarzSolver::overlap_point() const {
     return overlap_point_;
+}
+
+double SchwarzSolver::overhead_ratio() const {
+    size_t n_subs = 0;
+    std::for_each(subdomains_.begin(), subdomains_.end(), [&n_subs](const auto& sub) { n_subs += sub->npoints(); });
+    return static_cast<double>(n_subs) / static_cast<double>(N_ * N_);
+}
+bool SchwarzSolver::is_collapse() const
+{
+  for(const auto& sub : subdomains_)
+    if (sub->is_global_collapse())
+      return true;
+  return false;
 }

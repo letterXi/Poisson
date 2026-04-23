@@ -1,7 +1,5 @@
 #include "../main_test.hpp"
 #include "poisson_problem_solver/mat_solver/csr_mat_solver.hpp"
-#include "poisson_problem_solver/schwarz_methods/jacobi_schwarz_solver.hpp"
-#include "poisson_problem_solver/schwarz_methods/original_schwarz_solver.hpp"
 #include "poisson_problem_solver/utils/norms.hpp"
 #include "poisson_problem_solver/utils/vtk.hpp"
 #include "poisson_problem_solver/utils/tictoc.hpp"
@@ -11,16 +9,16 @@
 
 TEST_CASE("Comparison of the performance of parallel and sequential Jacobi methods",
           "[examples][jacobi][heavy_calculation][parallel]") {
-    size_t N = 200; 
+    size_t N = 100; 
     RegularGrid2D grid(0,0,1,1, N,N);
-    std::vector<size_t> mask = block_mask(grid, 3, 2);
+    std::vector<size_t> mask = block_mask(grid, 2, 2);
     std::vector<double> u_0(N * N, 0.0);
     std::vector<double> u_exact(N*N);
     fill_u_exact(u_exact, grid);
     std::vector<double> u(N * N);
     JacobiSchwarzSolver solver(N, mask, sourceFunction, dirichletBoundaryFunction, 10000);
     OriginalSchwarzSolver schwarz_solver(N, mask, sourceFunction, dirichletBoundaryFunction, 10000);
-    size_t overlap = 20;
+    size_t overlap = 50;
     solver.set_overlap(overlap);
     schwarz_solver.set_overlap(overlap);
 

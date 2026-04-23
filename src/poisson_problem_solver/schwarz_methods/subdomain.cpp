@@ -12,17 +12,21 @@ void Subdomain::add_point(size_t point, double weight) {
 bool Subdomain::is_neighbor(size_t point) const {
     if (mask_[point] != -1)
         return false;
+
     size_t j = point / N_;
     size_t i = point % N_;
 
-    if (i > 0 && mask_[point - 1] != -1)
-        return true;
-    if (i < N_ - 1 && mask_[point + 1] != -1)
-        return true;
-    if (j > 0 && mask_[point - N_] != -1)
-        return true;
-    if (j < N_ - 1 && mask_[point + N_] != -1)
-        return true;
+    // Проверка 4 основных направлений (Крест)
+    if (i > 0 && mask_[point - 1] != -1) return true;           // Лево
+    if (i < N_ - 1 && mask_[point + 1] != -1) return true;     // Право
+    if (j > 0 && mask_[point - N_] != -1) return true;         // Низ
+    if (j < N_ - 1 && mask_[point + N_] != -1) return true;    // Верх
+
+    // ДОБАВЛЯЕМ 4 ДИАГОНАЛИ (чтобы не было усечения под 45°)
+    if (i > 0 && j > 0 && mask_[point - N_ - 1] != -1) return true;         // Низ-Лево
+    if (i < N_ - 1 && j > 0 && mask_[point - N_ + 1] != -1) return true;     // Низ-Право
+    if (i > 0 && j < N_ - 1 && mask_[point + N_ - 1] != -1) return true;     // Верх-Лево
+    if (i < N_ - 1 && j < N_ - 1 && mask_[point + N_ + 1] != -1) return true; // Верх-Право
 
     return false;
 }
@@ -73,7 +77,7 @@ void Subdomain::create_matrix(double h, std::function<double(double, double)> so
     std::vector<size_t> cols;
     std::vector<double> vals;
 
-    cols.reserve(indices_.size() * 5); 
+    cols.reserve(indices_.size() * 5);
     vals.reserve(indices_.size() * 5);
     addr.reserve(indices_.size() + 1);
 
@@ -141,4 +145,11 @@ const std::vector<double>& Subdomain::get_u() const {
 
 void Subdomain::set_u(const std::vector<double>& u) {
     u_ = u;
+}
+size_t Subdomain::npoints() const {
+    return indices_.size();
+}
+bool Subdomain::is_global_collapse() const
+{
+  return indices_.size() == N_*N_;
 }

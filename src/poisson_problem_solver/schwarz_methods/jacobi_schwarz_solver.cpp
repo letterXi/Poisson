@@ -2,6 +2,7 @@
 #include "poisson_problem_solver/utils/norms.hpp"
 #include <algorithm>
 #include <execution>
+#include "poisson_problem_solver/utils/tictoc.hpp"
 
 void JacobiSchwarzSolver::iterate(std::vector<double>& u) {
     std::for_each(std::execution::seq, subdomains_.begin(), subdomains_.end(), [&](const auto& sub) {
@@ -37,7 +38,9 @@ void JacobiSchwarzSolver::parallel_solve(std::vector<double>& u, const std::vect
     double last_error = norm_inf_2(u, u_exact);
 
     for (size_t iter = 1; iter <= maxiter_; iter++) {
+        Tic("par");
         this->parallel_iterate(u);
+        Toc("par");
         this->connect_solves(u);
 
         double current_error = norm_inf_2(u, u_exact);
