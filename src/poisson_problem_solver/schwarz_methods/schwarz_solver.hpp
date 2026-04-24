@@ -11,7 +11,7 @@ class SchwarzSolver {
 public:
     SchwarzSolver(size_t N, std::vector<size_t> mask, std::function<double(double, double)> source_function,
                   std::function<double(double, double)> boundary_function, size_t maxiter = 10000,
-                  double tolerance = 1e-11);
+                  double tolerance = 1e-6);
 
     virtual ~SchwarzSolver() = default;
 

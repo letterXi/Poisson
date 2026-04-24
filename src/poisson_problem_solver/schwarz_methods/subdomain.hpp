@@ -4,6 +4,7 @@
 #include "poisson_problem_solver/mat/csr_matrix.hpp"
 #include "poisson_problem_solver/mat_solver/csr_mat_solver.hpp"
 #include <functional>
+#include <unordered_map>
 #include <vector>
 
 class Subdomain {
@@ -20,8 +21,6 @@ public:
     const std::vector<size_t>& get_indices() const;
 
     const std::vector<double>& get_weights() const;
-
-    const std::vector<int>& get_mask() const;
 
     const CsrMatrix& get_matrix() const;
 
@@ -52,7 +51,8 @@ private:
     size_t N_;
     std::vector<size_t> indices_;
     std::vector<double> u_;
-    std::vector<int> mask_;
+   // std::vector<int> mask_;
+    std::unordered_map<size_t, size_t> mask_;
     std::vector<double> weights_;
     CsrMatrix matrix_;
     std::vector<double> rhs_;

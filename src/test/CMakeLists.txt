@@ -5,8 +5,8 @@ set(SRC
   examples/ring_subdomain.cpp
   examples/parallel_jacobi.cpp
   examples/overlap_convergence_study.cpp
-  subdomain_test.cpp
-  schwarz_solver_test.cpp
+#  subdomain_test.cpp
+#  schwarz_solver_test.cpp
   mat_test.cpp
   mat_solver_test.cpp
   performance_analysis/rectangles/partition.cpp

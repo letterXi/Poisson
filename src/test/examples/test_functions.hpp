@@ -55,7 +55,6 @@ inline void save_overlap_vtk(const std::string& header, const RegularGrid2D& gri
     const auto& subs = solver.get_subdomains();
     VtkWriter::add_point_data(solver.overlap_point(), "overlap", fs);
     for (size_t i = 0; i < subs.size(); i++)
-        VtkWriter::add_point_data(subs[i]->get_mask(), std::to_string(i), fs);
 
     fs.close();
 }
@@ -77,9 +76,6 @@ inline void solve_with_screenshot(const std::string& stem, std::vector<double>& 
             VtkWriter::append_point_data_header(N * N, fs);
             VtkWriter::add_point_data(u, "U", fs);
             VtkWriter::add_point_data(solver.overlap_point(), "overlap", fs);
-            const auto& subs = solver.get_subdomains();
-            for(size_t i = 0; i < subs.size(); i++)
-              VtkWriter::add_point_data(subs[i]->get_mask(), "sub_" + std::to_string(i), fs);
             fs.close();
         }
         if (force_write)

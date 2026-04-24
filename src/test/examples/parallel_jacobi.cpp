@@ -9,9 +9,9 @@
 
 TEST_CASE("Comparison of the performance of parallel and sequential Jacobi methods",
           "[examples][jacobi][heavy_calculation][parallel]") {
-    size_t N = 100; 
+    size_t N = 500; 
     RegularGrid2D grid(0,0,1,1, N,N);
-    std::vector<size_t> mask = block_mask(grid, 2, 2);
+    std::vector<size_t> mask = block_mask(grid, 1, 2);
     std::vector<double> u_0(N * N, 0.0);
     std::vector<double> u_exact(N*N);
     fill_u_exact(u_exact, grid);

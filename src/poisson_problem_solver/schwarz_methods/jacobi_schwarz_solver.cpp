@@ -38,9 +38,7 @@ void JacobiSchwarzSolver::parallel_solve(std::vector<double>& u, const std::vect
     double last_error = norm_inf_2(u, u_exact);
 
     for (size_t iter = 1; iter <= maxiter_; iter++) {
-        Tic("par");
         this->parallel_iterate(u);
-        Toc("par");
         this->connect_solves(u);
 
         double current_error = norm_inf_2(u, u_exact);
